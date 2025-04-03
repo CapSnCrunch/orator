@@ -3,6 +3,7 @@ import express from 'express';
 import multer from 'multer';
 import OpenAI from 'openai';
 import cors from 'cors';
+import fs from 'fs';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -81,6 +82,39 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     });
   }
 });
+
+app.post('/api/tts', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: 'No text provided' });
+    }
+
+    // Send text to OpenAI TTS model
+    const response = await openai.audio.create({
+      model: 'gpt-4o-tts',
+      input: text,
+    });
+
+    // Assuming response contains audio data in base64
+    const audioData = response.data.audio;
+    const audioBuffer = Buffer.from(audioData, 'base64');
+
+    // Save audio file locally
+    const filePath = `./audio/${Date.now()}.mp3`;
+    fs.writeFileSync(filePath, audioBuffer);
+
+    res.json({ message: 'Audio file created', path: filePath });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      error: error.message || 'An error occurred during processing'
+    });
+  }
+});
+
+// Ensure the audio directory exists
+fs.mkdirSync('./audio', { recursive: true });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
