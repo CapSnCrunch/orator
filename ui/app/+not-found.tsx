@@ -6,15 +6,15 @@ import { ThemedView } from '@/components/ThemedView';
 
 export default function NotFoundScreen() {
   return (
-    <>
+    <ThemedView style={styles.container}>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen doesn't exist.</ThemedText>
-        <Link href="/" style={styles.link}>
+        <ThemedText type="title">This screen doesn't exist. 1234</ThemedText>
+        <Link href="/camera" style={styles.link}>
           <ThemedText type="link">Go to home screen!</ThemedText>
         </Link>
       </ThemedView>
-    </>
+    </ThemedView>
   );
 }
 
