@@ -3,13 +3,18 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingVi
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from '@/hooks/useColorScheme';
-
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { AntDesign } from '@expo/vector-icons';
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const secondaryColor = useThemeColor({}, 'tint');
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -36,26 +41,26 @@ export default function SignInScreen() {
 
   const handleCreateAccount = () => {
     // Navigate to sign in screen
-    router.push('/(tabs)/signin');
+    router.push('/(tabs)/home');
   };
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: backgroundColor }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.content}>
-          <Text style={[styles.title, isDark && styles.titleDark]}>Welcome Back</Text>
-          <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>Sign in to continue</Text>
+          <Text style={[styles.title, { color: textColor }]}>Welcome Back</Text>
+          <Text style={[styles.subtitle, { color: textColor }]}>Sign in to continue</Text>
           
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, isDark && styles.labelDark]}>Email</Text>
+              <Text style={[styles.label, { color: textColor }]}>Email</Text>
               <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
+                style={[styles.input, { color: '#000' }, { backgroundColor: secondaryColor }]}
                 placeholder="Enter your email"
                 placeholderTextColor={isDark ? '#888' : '#999'}
                 value={email}
@@ -67,11 +72,11 @@ export default function SignInScreen() {
             </View>
             
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, isDark && styles.labelDark]}>Password</Text>
+              <Text style={[styles.label, { color: textColor }]}>Password</Text>
               <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
+                style={[styles.input, { color: '#000' }, { backgroundColor: secondaryColor }]}
                 placeholder="Enter your password"
-                placeholderTextColor={isDark ? '#888' : '#999'}
+                // placeholderTextColor={isDark ? '#888' : '#999'}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -80,13 +85,13 @@ export default function SignInScreen() {
             </View>
             
             <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={[styles.forgotPasswordText, isDark && styles.forgotPasswordTextDark]}>
+              <Text style={[styles.forgotPasswordText, { color: textColor }]}>
                 Forgot password?
               </Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[styles.signInButton, isLoading && styles.signInButtonDisabled]}
+              style={[styles.signInButton, { backgroundColor: backgroundColor },  isLoading && styles.signInButtonDisabled]}
               onPress={handleSignIn}
               disabled={isLoading}
             >
@@ -94,9 +99,19 @@ export default function SignInScreen() {
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.signInButton, { backgroundColor: backgroundColor },  isLoading && styles.signInButtonDisabled]}
+              onPress={handleSignIn}
+              disabled={isLoading}
+            >
+              <Text style={styles.signInButtonText}>
+                {isLoading ? 'Signing in...' : 'Sign In with Google'}
+              </Text>
+            </TouchableOpacity>
             
             <View style={styles.createAccountContainer}>
-              <Text style={[styles.createAccountText, isDark && styles.createAccountTextDark]}>
+              <Text style={[styles.createAccountText, { color: textColor }]}>
                 Don't have an account?
               </Text>
               <TouchableOpacity onPress={handleCreateAccount}>
