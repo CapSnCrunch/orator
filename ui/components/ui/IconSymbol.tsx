@@ -19,6 +19,9 @@ const MAPPING = {
   'bolt.fill': 'bolt',
   'camera.rotate.fill': 'flip-camera-ios',
   'camera.circle.fill': 'camera',
+  'book.fill': 'book',
+  'photo.fill': 'photo',
+  'google.fill': 'google',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
