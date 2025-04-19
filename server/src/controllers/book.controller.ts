@@ -121,17 +121,14 @@ export class BookController {
             req.file.mimetype
           );
     
-          // TODO: Make ocr call async
-          // Analyze the image to get the page content
-          const ocrResult = await this.imageService.analyzeImage(req.file);
-    
-          // Create the page with its content in the database
-          const pageId = await this.pageService.savePage({
+          // Create the page and kick off async analysis
+          // By just passing in an image URL, we can later allow people to upload
+          // images from other sources (and not have to include it in the request)
+          const pageId = await this.pageService.createPageAndAnalyze(
             bookId,
-            imageUrl,
-            pageContent: ocrResult,
-            createdAt: new Date()
-          });
+            req.file,
+            imageUrl
+          );
     
           res.status(201).json({
             id: pageId,

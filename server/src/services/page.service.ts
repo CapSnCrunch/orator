@@ -1,10 +1,13 @@
 import { firestore } from '../lib/firebase-admin.ts';
+import { ImageService } from './image.service.ts';
 
 export interface Page {
   bookId: string;
   imageUrl: string;
-  pageContent: PageContent;
+  pageContent: PageContent | null;
   createdAt: Date;
+  updatedAt: Date;
+  status: 'processing' | 'completed' | 'error';
 }
 
 /**
@@ -26,6 +29,65 @@ export interface PageContent {
 export class PageService {
   
   private readonly collection = firestore.collection('pages');
+  private readonly imageService: ImageService;
+
+  constructor(imageService: ImageService) {
+    this.imageService = imageService;
+  }
+
+  /**
+   * Creates a page and initiates async analysis
+   */
+  async createPageAndAnalyze(
+    bookId: string,
+    imageFile: Express.Multer.File,
+    imageUrl: string
+  ): Promise<string> {
+
+    // Create initial page
+    const pageId = await this.savePage({
+      bookId,
+      imageUrl,
+      pageContent: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      status: 'processing'
+    });
+
+    // Kick off async analysis
+    this.analyzePage(pageId, imageFile).catch(error => {
+      console.error('Error in page analysis:', error);
+    });
+
+    // Return the page ID
+    return pageId;
+  }
+
+  /**
+   * Analyzes a page and saves the result to Firestore
+   * @param pageId - The ID of the page to analyze
+   * @param imageFile - The image file to analyze
+   */
+  private async analyzePage(pageId: string, imageFile: Express.Multer.File): Promise<void> {
+    try {
+      // Get OCR result
+      const ocrResult = await this.imageService.analyzeImage(imageFile);
+      
+      // Update page with content
+      await this.collection.doc(pageId).update({
+        pageContent: ocrResult,
+        status: 'completed',
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      // Update page with error status
+      await this.collection.doc(pageId).update({
+        status: 'error',
+        'pageContent.error': (error as Error).message
+      });
+      throw error;
+    }
+  }
 
   /**
    * Saves OCR result to Firestore

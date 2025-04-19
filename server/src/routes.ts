@@ -10,7 +10,7 @@ import { BookService } from './services/book.service.ts';
 const router = Router();
 const imageService = new ImageService();
 const ttsService = new TtsService();
-const pageService = new PageService();
+const pageService = new PageService(imageService);
 
 // Configure multer for memory storage
 const upload = multer({
